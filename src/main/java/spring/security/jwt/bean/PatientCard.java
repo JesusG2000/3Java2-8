@@ -20,7 +20,7 @@ public class PatientCard {
     private String recommendation;
     private String patientReport;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "patient_id")
     private User patient;
 
@@ -28,6 +28,19 @@ public class PatientCard {
     @CollectionTable(name = "sick" , joinColumns = @JoinColumn(name = "patient_id"))
     @Enumerated(EnumType.STRING)
     private Set<Sick> sicks;
+
+    public PatientCard() {
+    }
+
+
+    public PatientCard(String name, String surname, String fathername, String patientReport, User patient, Set<Sick> sicks) {
+        this.name = name;
+        this.surname = surname;
+        this.fathername = fathername;
+        this.patientReport = patientReport;
+        this.patient = patient;
+        this.sicks = sicks;
+    }
 
     public long getId() {
         return id;

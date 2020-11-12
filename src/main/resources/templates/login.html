@@ -17,12 +17,20 @@
 </head>
 <body>
 <script th:src="@{../js/index.js}"></script>
-<script>
-    window.onload = include;
-</script>
+<script th:src="@{../js/elems.js}"></script>
+<script th:src="@{../js/api/card_document.js}"></script>
+<script th:src="@{../js/api/doctor_document.js}"></script>
+<script th:src="@{../js/api/patient_card.js}"></script>
+<script th:src="@{../js/api/patient_visit.js}"></script>
+<script th:src="@{../js/api/user.js}"></script>
+<script th:src="@{../js/doctor.js}"></script>
+<script th:src="@{../js/general.js}"></script>
+<script th:src="@{../js/patient.js}"></script>
+
 <h3>Auth</h3>
-<input type="text" id="login"><br>
-<input type="text" id="password">
+<input type="text" id="login" placeholder="login"><br>
+<input type="password" id="password" placeholder="password">
+
 <button onclick="login()">Submit</button><br>
 <a href="/">home</a><br>
 <div id="message"></div>

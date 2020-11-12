@@ -40,6 +40,7 @@ public class MainRestController {
             User u = new User();
             u.setPassword(registrationRequest.getPassword());
             u.setLogin(registrationRequest.getLogin());
+            u.setEmail(registrationRequest.getEmail());
             userServiceImpl.saveUser(u);
             return new ResponseEntity<>(HttpStatus.OK);
         }else{
@@ -50,12 +51,12 @@ public class MainRestController {
     @PostMapping("/login")
     public ResponseEntity<?> auth(@RequestBody AuthRequest request) throws IOException {
         User user = userServiceImpl.findByLoginAndPassword(request.getLogin(), request.getPassword());
-        if(user!=null) {
+        if(user!=null && user.isActive()) {
             String token = jwtProvider.generateToken(user.getLogin());
             AuthResponse response = new AuthResponse(token, user.getUserRole().getName());
             return new ResponseEntity<>(response, HttpStatus.OK);
         }else{
-            return new ResponseEntity<>( HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
     @PostMapping ("/authorized")

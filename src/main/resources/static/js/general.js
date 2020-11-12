@@ -2,19 +2,6 @@ var start = 0;
 var showCount = 5;
 var end = 5;
 
-function include() {
-    let first = '../js/elems.js';
-    let second = '../js/api.js';
-    var firstS = document.createElement('script');
-    var secondS = document.createElement('script');
-
-    firstS.src = first;
-    secondS.src = second;
-
-    let header = document.getElementsByTagName('head')[0];
-    header.appendChild(firstS);
-    header.appendChild(secondS);
-}
 
 function isTokenExist() {
     return localStorage.getItem('token') != null;
@@ -41,23 +28,28 @@ async function getUser() {
     return JSON.parse(body);
 }
 
-function validateLoginPass(login, password) {
+function validateLoginPass(login, password , email) {
     if (!(login.length >= 4 && login.length <= 16)) {
         return "not correct login";
     }
     if (!(password.length >= 4 && password.length <= 16)) {
         return "not correct password";
     }
+    if (!email.length >= 4) {
+        return "not correct email";
+    }
+
     return true;
 }
 
 async function reg() {
     let login = document.getElementById("login").value;
     let password = document.getElementById("password").value;
+    let email = document.getElementById("email").value;
     let mes = document.getElementById("message");
-    let result = validateLoginPass(login, password);
+    let result = validateLoginPass(login, password , email);
     if (result === true) {
-        let data = {login: login, password: password};
+        let data = {login: login, password: password,email:email};
         let res = await regUser(data);
         if (res.ok) {
             window.location.replace(window.location.origin);
@@ -82,7 +74,7 @@ async function login() {
         localStorage.setItem('token', info['token']);
         window.location.replace(window.location.origin);
     } else {
-        mes.innerHTML = "not correct login or password";
+        mes.innerHTML = "not correct login or password or u need to activate your mail";
     }
 }
 

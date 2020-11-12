@@ -8,6 +8,7 @@ import spring.security.jwt.bean.dto.DoctorSpec;
 import spring.security.jwt.repository.DoctorDocumentRepository;
 import spring.security.jwt.service.DoctorDocumentService;
 
+import java.util.List;
 import java.util.Set;
 
 @Service
@@ -18,6 +19,11 @@ public class DoctorDocumentServiceImpl implements DoctorDocumentService {
     @Override
     public DoctorDocument saveDoctorDocument(DoctorDocument doctorDocument) {
         return doctorDocumentRepository.save(doctorDocument);
+    }
+
+    @Override
+    public List<DoctorDocument> getAll() {
+        return doctorDocumentRepository.findAll();
     }
 
     @Override

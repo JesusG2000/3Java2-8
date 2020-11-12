@@ -1,6 +1,6 @@
 package spring.security.jwt.controller.dto;
 
-public class DoctorIdRequest {
+public class IdRequest {
     private long id;
 
     public long getId() {

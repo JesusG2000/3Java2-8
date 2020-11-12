@@ -23,6 +23,13 @@ public class User {
     @JoinColumn(name = "role_id")
     private UserRole userRole;
 
+    @Column
+    private boolean active;
+    @Column
+    private String email;
+    @Column
+    private String activationCode;
+
 
 
     public Long getId() {
@@ -55,5 +62,29 @@ public class User {
 
     public void setUserRole(UserRole userRole) {
         this.userRole = userRole;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getActivationCode() {
+        return activationCode;
+    }
+
+    public void setActivationCode(String activationCode) {
+        this.activationCode = activationCode;
     }
 }

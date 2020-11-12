@@ -1,7 +1,12 @@
-function button(onclick , innerHtml) {
+function button(onclick=null , innerHtml) {
     let button = document.createElement('button');
     button.innerHTML = innerHtml;
     button.onclick = onclick;
+    return button
+}
+function buttonWithParams(innerHtml) {
+    let button = document.createElement('button');
+    button.innerHTML = innerHtml;
     return button
 }
 function input(type , id ,placeHolder='',value='' , name='') {
@@ -19,8 +24,10 @@ function a(href,innerHtml) {
     a.innerHTML=innerHtml;
     return a;
 }
-function div() {
-    return document.createElement('div');
+function div(id='') {
+    let div = document.createElement('div');
+    div.id=id;
+    return div;
 }
 
 function p(innerHtml) {

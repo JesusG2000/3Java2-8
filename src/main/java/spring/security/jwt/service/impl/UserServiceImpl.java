@@ -12,6 +12,7 @@ import spring.security.jwt.repository.UserRoleRepository;
 import spring.security.jwt.service.UserService;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -22,11 +23,23 @@ public class UserServiceImpl implements UserService {
     private UserRoleRepository userRoleRepository;
     @Autowired
     private PasswordEncoder passwordEncoder;
+    @Autowired
+    private MailSenderImpl mailSender;
 
     public User saveUser(User user) {
         UserRole userRole = userRoleRepository.findByName(Role.ROLE_PATIENT);
         user.setUserRole(userRole);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
+        user.setActivationCode(UUID.randomUUID().toString());
+
+        user.setActive(false);
+        String message = String.format(
+                "Hello %s!\n" +
+                        "activate your code , need to visit http://localhost:8080/activate/%s",
+                user.getLogin(),
+                user.getActivationCode()
+        );
+        mailSender.send(user.getEmail(),"Activation code" , message);
         return userRepository.save(user);
     }
 
@@ -62,4 +75,16 @@ public class UserServiceImpl implements UserService {
     }
 
 
+    public boolean activateUser(String code) {
+      User user = userRepository.findByActivationCode(code);
+
+      if(user ==null){
+          return false;
+      }
+      user.setActivationCode(null);
+      user.setActive(true);
+      userRepository.save(user);
+
+      return true;
+    }
 }

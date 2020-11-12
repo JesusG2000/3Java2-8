@@ -19,6 +19,14 @@ public class PatientVisit {
     @JoinColumn(name = "patientCard_id")
     private PatientCard patientCard;
 
+    public PatientVisit() {
+    }
+
+    public PatientVisit(Date date, PatientCard patientCard) {
+        this.date = date;
+        this.patientCard = patientCard;
+    }
+
     public long getId() {
         return id;
     }

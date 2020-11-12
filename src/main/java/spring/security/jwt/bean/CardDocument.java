@@ -20,6 +20,14 @@ public class CardDocument {
     @JoinColumn(name = "document_id")
     private DoctorDocument doctorDocument;
 
+    public CardDocument() {
+    }
+
+    public CardDocument(PatientCard card, DoctorDocument doctorDocument) {
+        this.card = card;
+        this.doctorDocument = doctorDocument;
+    }
+
     public long getId() {
         return id;
     }

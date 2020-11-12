@@ -1,6 +1,6 @@
 package spring.security.jwt.controller.dto;
 
-public class DoctorLoginRequest {
+public class LoginRequest {
     private String login;
 
     public String getLogin() {

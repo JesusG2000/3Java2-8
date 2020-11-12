@@ -18,7 +18,7 @@ public class DoctorDocument {
     private String surname;
     private String fathername;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "doctor_id")
     private User doctor;
 

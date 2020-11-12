@@ -4,25 +4,33 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import spring.security.jwt.bean.CardDocument;
 import spring.security.jwt.bean.DoctorDocument;
+import spring.security.jwt.bean.PatientCard;
 import spring.security.jwt.bean.User;
 import spring.security.jwt.bean.dto.DoctorSpec;
 import spring.security.jwt.controller.dto.DoctorDocumentRequest;
-import spring.security.jwt.controller.dto.DoctorIdRequest;
+import spring.security.jwt.controller.dto.IdRequest;
 import spring.security.jwt.controller.dto.FullDoctorDocumentRequest;
+import spring.security.jwt.repository.PatientCardRepository;
+import spring.security.jwt.service.impl.CardDocumentServiceImpl;
 import spring.security.jwt.service.impl.DoctorDocumentServiceImpl;
 import spring.security.jwt.service.impl.UserServiceImpl;
 
 import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.LinkedList;
+import java.util.List;
 
 @RestController
 public class DoctorDocumentRestController {
     @Autowired
     private DoctorDocumentServiceImpl doctorDocumentService;
     @Autowired
+    private CardDocumentServiceImpl cardDocumentService;
+    @Autowired
     private UserServiceImpl userService;
+@Autowired
+    private PatientCardRepository patientCardRepository;
 
     @PostMapping("/doctor/createDoctorDocument")
     public ResponseEntity<?> create(@RequestBody DoctorDocumentRequest doctorDocumentRequest) {
@@ -39,8 +47,8 @@ public class DoctorDocumentRestController {
     }
 
     @PostMapping("/doctor/isExistDoctorDocument")
-    public ResponseEntity<?> isExist(@RequestBody DoctorIdRequest doctorIdRequest) {
-        if (doctorDocumentService.existsByDoctorId(doctorIdRequest.getId())) {
+    public ResponseEntity<?> isExist(@RequestBody IdRequest idRequest) {
+        if (doctorDocumentService.existsByDoctorId(idRequest.getId())) {
             return new ResponseEntity<>(HttpStatus.FOUND);
         } else {
             return new ResponseEntity<>(HttpStatus.OK);
@@ -48,20 +56,33 @@ public class DoctorDocumentRestController {
     }
 
     @DeleteMapping("/doctor/deleteDoctorDocument")
-    public ResponseEntity<?> delete(@RequestBody DoctorIdRequest doctorIdRequest) {
-        DoctorDocument doctorDocument  = doctorDocumentService.getByDoctor_Id(doctorIdRequest.getId());
-        doctorDocumentService.deleteById(doctorDocument.getId());
-        return new ResponseEntity<>(HttpStatus.OK);
+    public ResponseEntity<?> delete(@RequestBody IdRequest idRequest) {
+        DoctorDocument doctorDocument  = doctorDocumentService.getByDoctor_Id(idRequest.getId());
+        if(!cardDocumentService.existsByDoctorDocumentId(doctorDocument.getId())) {
+            doctorDocumentService.deleteById(doctorDocument.getId());
+            return new ResponseEntity<>(HttpStatus.OK);
+        }else{
+            return new ResponseEntity<>(HttpStatus.FOUND);
+        }
     }
     @GetMapping("/doctor/getDoctorDocument/{id}")
     public ResponseEntity<?> get(@PathVariable(name = "id") Long id) {
         DoctorDocument doctorDocument  = doctorDocumentService.getByDoctor_Id(id);
         return new ResponseEntity<>(doctorDocument,HttpStatus.OK);
     }
+
+    @GetMapping("/doctor/getAllSubPatients/{id}")
+    public ResponseEntity<?> getAllSubPatients(@PathVariable(name = "id") Long id) {
+        DoctorDocument doctorDocument  = doctorDocumentService.getByDoctor_Id(id);
+        List<CardDocument> cardDocumentList = cardDocumentService.getAllByDoctorDocument_Id(doctorDocument.getId());
+        List<PatientCard> patientCardList = new LinkedList<>();
+        for (CardDocument cardDocument : cardDocumentList) {
+            patientCardList.add(cardDocument.getCard());
+        }
+        return new ResponseEntity<>(patientCardList,HttpStatus.OK);
+    }
     @PutMapping("/doctor/updateDoctorDocument")
     public ResponseEntity<?> get(@RequestBody FullDoctorDocumentRequest fullDoctorDocumentRequest) {
-        System.out.println(fullDoctorDocumentRequest);
-
          doctorDocumentService.setDoctorDocumentById(
                 fullDoctorDocumentRequest.getId(),
                 fullDoctorDocumentRequest.getName(),

@@ -6,15 +6,10 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import spring.security.jwt.bean.DoctorDocument;
-import spring.security.jwt.bean.User;
-import spring.security.jwt.bean.dto.DoctorSpec;
-
-import java.util.Set;
 
 @Repository
 public interface DoctorDocumentRepository extends JpaRepository<DoctorDocument, Long> {
     boolean existsByDoctor_Id(Long doctor_Id);
-
     DoctorDocument getByDoctor_Id(Long doctor_id);
 
     @Modifying

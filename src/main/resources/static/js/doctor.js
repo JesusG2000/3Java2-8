@@ -13,6 +13,9 @@ async function genDocument() {
     let isCheckedMiddle = false;
     let isCheckedJunior = true;
 
+    let isDisabled = false;
+
+
     if (!isNotExist.ok) {
         let res = await getDocDocument(textUserData['id'], token);
         let text = await res.text();
@@ -21,7 +24,7 @@ async function genDocument() {
         surnameValue = docDocumentText['surname'];
         fathernameValue = docDocumentText['fathername'];
         isCheckedJunior = false;
-        console.log(docDocumentText);
+        isDisabled = true;
         switch (docDocumentText['specs'][0]) {
             case 'PRO':
                 isCheckedPro = true;
@@ -48,17 +51,22 @@ async function genDocument() {
 
     let radioProLabel = label('Pro');
     let radioPro = input('radio', 'pro', '', 'Pro', 'docSpec');
-    radioProLabel.appendChild(radioPro);
     radioPro.checked=isCheckedPro;
+    radioPro.disabled=isDisabled;
+    radioProLabel.appendChild(radioPro);
+
 
     let radioMiddleLabel = label('Middle');
     let radioMiddle = input('radio', 'middle', '', 'Middle', 'docSpec');
-    radioMiddleLabel.appendChild(radioMiddle);
     radioMiddle.checked = isCheckedMiddle;
+    radioMiddle.disabled = isDisabled;
+    radioMiddleLabel.appendChild(radioMiddle);
+
 
     let radioJuniorLabel = label('Junior');
     let radioJunior = input('radio', 'junior', '', 'Junior', 'docSpec');
     radioJunior.checked = isCheckedJunior;
+    radioJunior.disabled = isDisabled;
     radioJuniorLabel.appendChild(radioJunior);
 
 
@@ -109,11 +117,12 @@ async function genDocCreateButton() {
         let doctorSpec;
 
         for (let i = 0; i < doctorSpecList.length; i++) {
+            doctorSpecList[i].disabled=true;
             if (doctorSpecList[i].checked) {
                 doctorSpec = doctorSpecList[i];
-                break;
             }
         }
+
         let data = {
             name: name,
             surname: surname,
@@ -136,10 +145,19 @@ async function genDeleteDocDocument() {
     let text = await userData.text();
     let textData = JSON.parse(text);
     let isNotExist = await isDocDocumentExist({id: textData['id']}, token);
+    let doctorSpecList = document.getElementsByName('docSpec');
     if (await isAuth() && !isNotExist.ok) {
 
-        await deleteDocDocument({id: textData['id']}, token);
-        errMes.innerHTML = 'deleted';
+        let result = await deleteDocDocument({id: textData['id']}, token);
+        if(result.ok) {
+
+            for (let i = 0; i < doctorSpecList.length; i++) {
+                doctorSpecList[i].disabled = false;
+            }
+            errMes.innerHTML = 'deleted';
+        }else{
+            errMes.innerHTML = 'U still have patients';
+        }
 
     } else {
         errMes.innerHTML = 'nothing to delete';
@@ -212,4 +230,219 @@ async function genDocUpdate() {
     let create = document.querySelector('.update');
     let deleteButton = button(genUpdateDocDocument, 'update');
     create.appendChild(deleteButton);
+}
+
+async function publishRecommendation(patientCard, recommendation, token) {
+    patientCard['recommendation'] = recommendation;
+    await updateFullPatientCard({
+        id: patientCard['id'],
+        name: patientCard['name'],
+        surname: patientCard['surname'],
+        fathername: patientCard['fathername'],
+        recommendation: patientCard['recommendation'],
+        patientReport: patientCard['patientReport'],
+    }, token);
+
+    await deleteCardDocumentByCardIdFromDoctor({id: patientCard['id']}, token);
+    let info = document.querySelector('.neededInfo');
+    info.innerHTML='';
+    await genListOfSubscribedUsers();
+}
+
+async function genListOfSubscribedUsers() {
+    let token = localStorage.getItem('token');
+    let userData = await getUserByToken(token);
+    let text = await userData.text();
+    let textUserData = JSON.parse(text);
+    let subPatients = await getAllSubPatients(textUserData['id'], token);
+
+
+    let info = document.querySelector('.neededInfo');
+    let table = document.createElement('table');
+    table.setAttribute('class' , 'table');
+
+    for (let i = 0; i < subPatients.length; i++) {
+
+        if (i === 0) {
+            let tr = document.createElement('tr');
+            let th1 = document.createElement('th');
+            th1.innerHTML = 'Name';
+            let th2 = document.createElement('th');
+            th2.innerHTML = 'Surname';
+            let th3 = document.createElement('th');
+            th3.innerHTML = 'FatherName';
+            let th4 = document.createElement('th');
+            th4.innerHTML = 'Patient Report';
+            let th5 = document.createElement('th');
+            th5.innerHTML = 'Sick';
+            let th6 = document.createElement('th');
+            th6.innerHTML = 'Recommendation';
+            let th7 = document.createElement('th');
+            th7.innerHTML = 'Publish Recommendation';
+            tr.appendChild(th1);
+            tr.appendChild(th2);
+            tr.appendChild(th3);
+            tr.appendChild(th4);
+            tr.appendChild(th5);
+            tr.appendChild(th6);
+            tr.appendChild(th7);
+            table.appendChild(tr);
+        }
+        let tr = document.createElement('tr');
+            for (let y = 0; y < 7; y++) {
+                let th = document.createElement('th');
+
+
+                switch (y) {
+                    case 0: {
+                        th.innerHTML = subPatients[i]['name'];
+                        break;
+                    }
+                    case 1: {
+                        th.innerHTML = subPatients[i]['surname'];
+                        break;
+                    }
+                    case 2: {
+                        th.innerHTML = subPatients[i]['fathername'];
+                        break;
+                    }
+                    case 3: {
+                        th.innerHTML = subPatients[i]['patientReport'];
+                        break;
+                    }
+                    case 4: {
+                        th.innerHTML = subPatients[i]['sicks'][0];
+                        break;
+                    }
+                    case 5: {
+                        let inputInfo = input('text',subPatients[i]['name'],'for patient');
+                        th.appendChild(inputInfo);
+                        break;
+                    }
+                    case 6: {
+                        let subButton = buttonWithParams('publish');
+                        subButton.onclick= async () => {
+                            await publishRecommendation(subPatients[i],
+                                document.getElementById(subPatients[i]['name']).value,
+                                token
+                            );
+                        };
+                        th.appendChild(subButton);
+                        break;
+                    }
+                }
+                tr.appendChild(th);
+
+        }
+        table.appendChild(tr);
+    }
+    info.appendChild(table);
+}
+
+async function genDocSearchButton(){
+    let token = localStorage.getItem('token');
+    let userData = await getUserByToken(token);
+    let text = await userData.text();
+    let textUserData = JSON.parse(text);
+    let subPatients = await getAllSubPatients(textUserData['id'], token);
+    let info = document.querySelector('.neededInfo');
+
+    let inputResult = document.getElementById('searchPatientCard').value;
+    info.innerHTML='';
+
+    if(inputResult.length===0){
+        await genListOfSubscribedUsers();
+    }else{
+        let table = document.createElement('table');
+        table.setAttribute('class' , 'table');
+
+        for (let i = 0; i < subPatients.length; i++) {
+
+            if (i === 0) {
+                let tr = document.createElement('tr');
+                let th1 = document.createElement('th');
+                th1.innerHTML = 'Name';
+                let th2 = document.createElement('th');
+                th2.innerHTML = 'Surname';
+                let th3 = document.createElement('th');
+                th3.innerHTML = 'FatherName';
+                let th4 = document.createElement('th');
+                th4.innerHTML = 'Patient Report';
+                let th5 = document.createElement('th');
+                th5.innerHTML = 'Sick';
+                let th6 = document.createElement('th');
+                th6.innerHTML = 'Recommendation';
+                let th7 = document.createElement('th');
+                th7.innerHTML = 'Publish Recommendation';
+                tr.appendChild(th1);
+                tr.appendChild(th2);
+                tr.appendChild(th3);
+                tr.appendChild(th4);
+                tr.appendChild(th5);
+                tr.appendChild(th6);
+                tr.appendChild(th7);
+                table.appendChild(tr);
+            }
+            if(inputResult===subPatients[i]['name']) {
+                let tr = document.createElement('tr');
+                for (let y = 0; y < 7; y++) {
+                    let th = document.createElement('th');
+
+                    switch (y) {
+                        case 0: {
+                            th.innerHTML = subPatients[i]['name'];
+                            break;
+                        }
+                        case 1: {
+                            th.innerHTML = subPatients[i]['surname'];
+                            break;
+                        }
+                        case 2: {
+                            th.innerHTML = subPatients[i]['fathername'];
+                            break;
+                        }
+                        case 3: {
+                            th.innerHTML = subPatients[i]['patientReport'];
+                            break;
+                        }
+                        case 4: {
+                            th.innerHTML = subPatients[i]['sicks'][0];
+                            break;
+                        }
+                        case 5: {
+                            let inputInfo = input('text', subPatients[i]['name'], 'for patient');
+                            th.appendChild(inputInfo);
+                            break;
+                        }
+                        case 6: {
+                            let subButton = buttonWithParams('publish');
+                            subButton.onclick = async () => {
+                                await publishRecommendation(subPatients[i],
+                                    document.getElementById(subPatients[i]['name']).value,
+                                    token
+                                );
+                            };
+                            th.appendChild(subButton);
+                            break;
+                        }
+                    }
+                    tr.appendChild(th);
+
+                }
+
+            table.appendChild(tr);
+            }
+        }
+        info.appendChild(table);
+    }
+}
+
+async function genDocSearch() {
+
+    let search = document.querySelector('.search');
+    let searchButton = button(await genDocSearchButton, 'Search');
+    let searchPatientCard = input('text','searchPatientCard','patient name');
+    searchButton.id = 'docCreateButton';
+    search.appendChild(searchPatientCard);
+    search.appendChild(searchButton);
 }
