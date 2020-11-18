@@ -5,6 +5,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 import spring.security.jwt.bean.User;
+import spring.security.jwt.exception.ControllerException;
+import spring.security.jwt.exception.ServiceException;
 import spring.security.jwt.service.impl.UserServiceImpl;
 
 @Component
@@ -14,7 +16,11 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Override
     public CustomUserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userServiceImpl.findByLogin(username);
-        return CustomUserDetails.fromUserEntityToCustomUserDetails(user);
+        try {
+            User user = userServiceImpl.findByLogin(username);
+            return CustomUserDetails.fromUserEntityToCustomUserDetails(user);
+        } catch (ServiceException e) {
+            throw new UsernameNotFoundException("user not found");
+        }
     }
 }

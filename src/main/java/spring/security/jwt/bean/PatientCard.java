@@ -4,6 +4,8 @@ import lombok.Data;
 import spring.security.jwt.bean.dto.Sick;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.util.Set;
 
 @Entity
@@ -14,18 +16,31 @@ public class PatientCard {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
+
+    @Size(min = 2, max = 16, message = "name from 2 to 16")
+    @NotNull(message = "Can not be null")
     private String name;
+
+    @Size(min = 4, max = 16, message = "surname from 2 to 16")
+    @NotNull(message = "Can not be null")
     private String surname;
+
+    @Size(min = 4, max = 16, message = "fathername from 2 to 16")
+    @NotNull(message = "Can not be null")
     private String fathername;
+
     private String recommendation;
+
+    @Size(min = 4,message = "name from 2 to 16")
+    @NotNull(message = "Can not be null")
     private String patientReport;
 
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "patient_id")
     private User patient;
 
-    @ElementCollection(targetClass = Sick.class , fetch = FetchType.EAGER)
-    @CollectionTable(name = "sick" , joinColumns = @JoinColumn(name = "patient_id"))
+    @ElementCollection(targetClass = Sick.class, fetch = FetchType.EAGER)
+    @CollectionTable(name = "sick", joinColumns = @JoinColumn(name = "patient_id"))
     @Enumerated(EnumType.STRING)
     private Set<Sick> sicks;
 

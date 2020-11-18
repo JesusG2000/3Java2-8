@@ -6,11 +6,12 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import spring.security.jwt.bean.DoctorDocument;
+import spring.security.jwt.exception.RepositoryException;
 
 @Repository
 public interface DoctorDocumentRepository extends JpaRepository<DoctorDocument, Long> {
-    boolean existsByDoctor_Id(Long doctor_Id);
-    DoctorDocument getByDoctor_Id(Long doctor_id);
+    boolean existsByDoctor_Id(Long doctor_Id)throws RepositoryException;
+    DoctorDocument getByDoctor_Id(Long doctor_id)throws RepositoryException;
 
     @Modifying
     @Query("update DoctorDocument d set d.name =:name, d.surname=:surname, d.fathername =:fathername  where d.id =:id ")
@@ -18,5 +19,5 @@ public interface DoctorDocumentRepository extends JpaRepository<DoctorDocument, 
             @Param("id") Long id,
             @Param("name") String name,
             @Param("surname") String surname,
-            @Param("fathername") String fathername);
+            @Param("fathername") String fathername)throws RepositoryException;
 }

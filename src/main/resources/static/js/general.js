@@ -74,7 +74,9 @@ async function login() {
         localStorage.setItem('token', info['token']);
         window.location.replace(window.location.origin);
     } else {
-        mes.innerHTML = "not correct login or password or u need to activate your mail";
+        let body = await result.text();
+        let info = JSON.parse(body);
+        mes.innerHTML = info['message'];
     }
 }
 

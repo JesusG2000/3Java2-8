@@ -2,9 +2,20 @@ package spring.security.jwt.controller.dto;
 
 import spring.security.jwt.bean.User;
 
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+
 public class DoctorDocumentRequest {
+    @Size(min = 2, max = 16, message = "name from 2 to 16")
+    @NotNull(message = "Can not be null")
     private String name;
+
+    @Size(min = 4, max = 16, message = "surname from 4 to 16")
+    @NotNull(message = "Can not be null")
     private String surname;
+
+    @Size(min = 4, max = 16, message = "fathername from 4 to 16")
+    @NotNull(message = "Can not be null")
     private String fathername;
 
     private int userId;

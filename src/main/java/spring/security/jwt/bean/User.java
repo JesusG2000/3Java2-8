@@ -3,6 +3,8 @@ package spring.security.jwt.bean;
 import lombok.Data;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 @Entity
 @Table(name = "user_table")
@@ -14,9 +16,13 @@ public class User {
     private Long id;
 
     @Column
+    @Size(min = 4 , max = 16, message = "login from 4 to 16")
+    @NotNull(message = "Can not be null")
     private String login;
 
     @Column
+    @Size(min = 4 , max = 40 , message = "password from 4 to 40")
+    @NotNull(message = "Can not be null")
     private String password;
 
     @ManyToOne

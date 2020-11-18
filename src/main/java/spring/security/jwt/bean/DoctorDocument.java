@@ -4,6 +4,8 @@ import lombok.Data;
 import spring.security.jwt.bean.dto.DoctorSpec;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.util.Objects;
 import java.util.Set;
 
@@ -14,8 +16,17 @@ public class DoctorDocument {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
+
+    @Size(min = 2, max = 16, message = "name from 2 to 16")
+    @NotNull(message = "Can not be null")
     private String name;
+
+    @Size(min = 4, max = 16, message = "surname from 4 to 16")
+    @NotNull(message = "Can not be null")
     private String surname;
+
+    @Size(min = 4, max = 16, message = "fathername from 4 to 16")
+    @NotNull(message = "Can not be null")
     private String fathername;
 
     @OneToOne(fetch = FetchType.EAGER)
